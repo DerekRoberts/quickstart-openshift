@@ -18,25 +18,14 @@ helm upgrade --install oc-secrets-backup ./charts/oc-secrets-backup \
 
 ## Selecting secrets
 
-You can back up:
-
-- A fixed list of secrets:
+This chart is intentionally minimal: you **must** provide an explicit list of secret names to back up.
 
 ```bash
 helm upgrade --install oc-secrets-backup ./charts/oc-secrets-backup \
   --namespace <namespace> \
   --set backup.secrets.names='{my-secret-1,my-secret-2}'
 ```
-
-- Or secrets matching a label selector:
-
-```bash
-helm upgrade --install oc-secrets-backup ./charts/oc-secrets-backup \
-  --namespace <namespace> \
-  --set backup.secrets.labelSelector='app.kubernetes.io/instance=my-release'
-```
-
-By default it excludes service-account token secrets (`kubernetes.io/service-account-token`) since they rotate and are noisy.
+This is designed for small sets like **route TLS cert secrets**.
 
 ## Restore (manual)
 

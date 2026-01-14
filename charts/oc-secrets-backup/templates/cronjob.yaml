@@ -9,12 +9,12 @@ metadata:
 spec:
   schedule: {{ .Values.cronjob.schedule | quote }}
   startingDeadlineSeconds: {{ .Values.cronjob.startingDeadlineSeconds }}
-  concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
-  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
-  failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
-      backoffLimit: {{ .Values.cronjob.backoffLimit }}
+      backoffLimit: 0
       template:
         metadata:
           labels:
@@ -22,7 +22,7 @@ spec:
         spec:
           serviceAccountName: {{ include "oc-secrets-backup.serviceAccountName" . }}
           restartPolicy: Never
-          activeDeadlineSeconds: {{ .Values.cronjob.activeDeadlineSeconds }}
+          activeDeadlineSeconds: 900
           containers:
             - name: oc-secrets-backup
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
