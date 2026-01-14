@@ -68,6 +68,10 @@ Create a new repository using this repository as a template.
 
 Variables and secrets are consumed by workflows.  Variables are visible in workflows and logs, while secrets are hidden/redacted.
 
+### 💾 Optional: backing up OpenShift secrets to a PVC
+
+If your application relies on long-lived namespace secrets (and you want a simple “in-cluster” backup), this repo includes an optional Helm chart at `charts/oc-secrets-backup` that can periodically export selected `Secret` objects into a PVC as a `tar.gz` archive.
+
 **Repository-level vs Environment-specific:**
 
 - **Repository-level** (shown as `<none>` in the environment column): These are available to all workflows and environments. They're created at the repository level and apply globally unless overridden by environment-specific values.

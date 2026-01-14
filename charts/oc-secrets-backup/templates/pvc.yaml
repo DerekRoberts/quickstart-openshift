@@ -1,0 +1,23 @@
+{{- if and .Values.enabled .Values.pvc.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "oc-secrets-backup.pvcName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "oc-secrets-backup.labels" . | nindent 4 }}
+  {{- if .Values.pvc.annotations }}
+  annotations:
+    {{- toYaml .Values.pvc.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- toYaml .Values.pvc.accessModes | nindent 4 }}
+  {{- if .Values.pvc.storageClassName }}
+  storageClassName: {{ .Values.pvc.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.pvc.size | quote }}
+{{- end }}
+

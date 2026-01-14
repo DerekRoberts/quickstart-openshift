@@ -1,0 +1,52 @@
+{{- if .Values.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "oc-secrets-backup.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "oc-secrets-backup.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  startingDeadlineSeconds: {{ .Values.cronjob.startingDeadlineSeconds }}
+  concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.cronjob.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "oc-secrets-backup.labels" . | nindent 12 }}
+        spec:
+          serviceAccountName: {{ include "oc-secrets-backup.serviceAccountName" . }}
+          restartPolicy: Never
+          activeDeadlineSeconds: {{ .Values.cronjob.activeDeadlineSeconds }}
+          containers:
+            - name: oc-secrets-backup
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command: ["/bin/sh", "-c"]
+              args:
+                - /scripts/backup-secrets.sh
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: scripts
+              configMap:
+                name: {{ include "oc-secrets-backup.fullname" . }}-scripts
+                defaultMode: 0555
+            - name: backups
+              {{- if .Values.pvc.enabled }}
+              persistentVolumeClaim:
+                claimName: {{ include "oc-secrets-backup.pvcName" . }}
+              {{- else }}
+              emptyDir: {}
+              {{- end }}
+{{- end }}
+

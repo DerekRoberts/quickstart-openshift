@@ -1,0 +1,53 @@
+enabled: true
+
+image:
+  # Public image with kubectl; avoids custom image builds.
+  repository: docker.io/bitnami/kubectl
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+cronjob:
+  schedule: "0 6 * * *"
+  startingDeadlineSeconds: 3600
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  backoffLimit: 0
+  activeDeadlineSeconds: 900
+
+serviceAccount:
+  create: true
+  name: ""
+
+rbac:
+  create: true
+
+pvc:
+  enabled: true
+  name: ""
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+  annotations:
+    helm.sh/resource-policy: keep
+
+backup:
+  # If empty, defaults to release namespace.
+  namespace: ""
+
+  # If `secrets.names` is non-empty, it takes precedence over `labelSelector`.
+  secrets:
+    names: []
+    labelSelector: ""
+    excludeNames: []
+    # Exclude service account tokens by default; they rotate and are noisy.
+    excludeTypes:
+      - kubernetes.io/service-account-token
+
+  output:
+    # "yaml" or "json"
+    format: yaml
+    # Delete archives older than this many days (0 disables pruning)
+    retentionDays: 30
+

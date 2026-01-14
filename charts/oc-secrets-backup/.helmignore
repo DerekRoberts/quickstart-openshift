@@ -1,0 +1,9 @@
+.DS_Store
+.git/
+.github/
+.vscode/
+node_modules/
+tmp/
+dist/
+coverage/
+*.tgz
